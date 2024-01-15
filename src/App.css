@@ -1,0 +1,39 @@
+.logo {
+  text-align: center;
+  font-size: 2em;
+  font-family: "Courier New", Courier, monospace;
+  margin: auto;
+  width: 100%;
+}
+
+.content {
+  margin: 0 auto;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.fileUploader {
+  text-size-adjust: 100%;
+  text-align: center;
+  width: 200px;
+  height: 100%;
+  border: 2px solid black;
+  box-sizing: border-box;
+  transition: background-color 0.5s ease-in;
+}
+
+.fileUploader[data-state="dragging"] {
+  border-color: blue;
+  background-color: lightgray;
+}
+
+.fileUploader[data-state="loaded"] {
+  border-color: green;
+  background-color: lightgreen;
+}
+
+.fileUploader[data-state="error"] {
+  border-color: red;
+  background-color: lightcoral;
+}
