@@ -80,7 +80,6 @@ function App() {
       const compressor = offlineContext.createDynamicsCompressor();
 
       // Effect parameters
-
       gainNode.gain.value = gain;
 
       bassFilter.type = "lowshelf";
@@ -183,63 +182,55 @@ function App() {
           }}
           children={
             <div className="fileUploader" data-state={fileUploaderStyle}>
-              Drag and drop audio file here {audioFileName}
+              <span>Drag and drop audio file here: {audioFileName}</span>
             </div>
           }
         />
         <div className="sliders">
-          <div>
-            <p>Gain: {gain}dB</p>
-            <input
-              name="gain"
-              type="range"
-              min="0"
-              max="20"
-              step="0.25"
-              value={gain}
-              onChange={handleGainChange}
-              disabled={!isFileLoaded}
-            />
-          </div>
-          <div className="bassSlider">
-            <p>Bass: {bass}dB</p>
-            <input
-              name="bass"
-              type="range"
-              min="-40"
-              max="40"
-              step="1"
-              value={bass}
-              onChange={handleBassChange}
-              disabled={!isFileLoaded}
-            />
-          </div>
-          <div className="midSlider">
-            <p>Mid: {mids}dB</p>
-            <input
-              name="mid"
-              type="range"
-              min="-40"
-              max="40"
-              step="1"
-              value={mids}
-              onChange={handleMidChange}
-              disabled={!isFileLoaded}
-            />
-          </div>
-          <div className="trebleSlider">
-            <p>Treble: {treble}dB</p>
-            <input
-              name="treble"
-              type="range"
-              min="-40"
-              max="40"
-              step="1"
-              value={treble}
-              onChange={handleTrebleChange}
-              disabled={!isFileLoaded}
-            />
-          </div>
+          <p>Gain: {gain}dB</p>
+          <input
+            name="gain"
+            type="range"
+            min="0"
+            max="20"
+            step="0.25"
+            value={gain}
+            onChange={handleGainChange}
+            disabled={!isFileLoaded}
+          />
+          <p>Bass: {bass}dB</p>
+          <input
+            name="bass"
+            type="range"
+            min="-40"
+            max="40"
+            step="1"
+            value={bass}
+            onChange={handleBassChange}
+            disabled={!isFileLoaded}
+          />
+          <p>Mid: {mids}dB</p>
+          <input
+            name="mid"
+            type="range"
+            min="-40"
+            max="40"
+            step="1"
+            value={mids}
+            onChange={handleMidChange}
+            disabled={!isFileLoaded}
+          />
+          <p>Treble: {treble}dB</p>
+          <input
+            name="treble"
+            type="range"
+            min="-40"
+            max="40"
+            step="1"
+            value={treble}
+            onChange={handleTrebleChange}
+            disabled={!isFileLoaded}
+          />
           <p>Compressor Threshold: {compressorThreshold}dB</p>
           <input
             type="range"
@@ -271,9 +262,7 @@ function App() {
             disabled={!isFileLoaded}
           />
         </div>
-        <div className="fileOutput">
-          <button onClick={addEffects}>Apply effects</button>
-        </div>
+        <button className="applyButton" onClick={addEffects}>Apply effects</button>
         <audio controls src={audioUrl}></audio>
       </div>
     </div>
