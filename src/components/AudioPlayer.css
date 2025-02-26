@@ -1,14 +1,13 @@
 .applyButton {
-    font-family: 'Courier New', Courier, monospace;
-    height: 30px;
+  font-family: "Courier New", Courier, monospace;
+  height: 30px;
 }
 
 .audioPlayer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}

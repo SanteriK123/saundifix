@@ -1,4 +1,4 @@
-import "./AudioControls.css"
+import "./AudioControls.css";
 
 interface AudioControlsProps {
   gain: number;
