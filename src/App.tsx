@@ -1,20 +1,16 @@
 import { useState } from "react";
 import bufferToWav from "audiobuffer-to-wav";
-import { FileUploader } from "react-drag-drop-files";
+import FileUpload from "./components/FileUpload";
+import AudioControls from "./components/AudioControls";
+import AudioPlayer from "./components/AudioPlayer";
 import "./App.css";
 
 function App() {
-  // Acceptable audio file types
-  const audioTypes = ["mp3", "wav", "ogg", "flac", "m4a"];
-
-  // Uploaded file states
-  // const [playerDisabled, setPlayerDisabled] = useState(true);
   const [isFileLoaded, setIsFileLoaded] = useState(false);
   const [audioFile, setAudioFile] = useState<ArrayBuffer | null>(null);
   const [audioFileName, setAudioFileName] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
 
-  // Effect states
   const [gain, setGain] = useState(1);
   const [bass, setBass] = useState(0);
   const [mids, setMids] = useState(0);
@@ -23,54 +19,34 @@ function App() {
   const [compressorKnee, setCompressorKnee] = useState(30);
   const [compressorRatio, setCompressorRatio] = useState(1);
 
-  // Audio context
-  const AudioContext = window.AudioContext;
-  const audioContext = new AudioContext();
+  const audioContext = new window.AudioContext();
   let offlineContext: OfflineAudioContext | null = null;
 
-  // Styling
-  const [fileUploaderStyle, setFileUploaderStyle] = useState("fileUploader");
-
-  function handleFileChange(file: any) {
+  function handleFileChange(file: File | null) {
     setIsFileLoaded(false);
-    if (!file) {
-      return null;
-    }
-    const audioFile = file;
-    setAudioFileName(audioFile.name);
-    if (!audioFile) {
-      return null;
-    }
+    if (!file) return;
 
-    // Read file as arraybuffer and pass to audio context to add effects
+    setAudioFileName(file.name);
+
     const reader = new FileReader();
-    reader.onload = function (e) {
-      if (e.target?.result === null) {
-        return null;
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        const audioData = e.target.result as ArrayBuffer;
+        setAudioFile(audioData);
+        setAudioUrl(URL.createObjectURL(file));
+        setIsFileLoaded(true);
       }
-      const audioData = e.target?.result as ArrayBuffer;
-      const originalAudioUrl = URL.createObjectURL(audioFile);
-      setAudioUrl(originalAudioUrl);
-      setAudioFile(audioData);
-      setIsFileLoaded(true);
     };
-    reader.readAsArrayBuffer(audioFile);
-    // setPlayerDisabled(false);
-    setFileUploaderStyle("loaded");
-    return null;
+    reader.readAsArrayBuffer(file);
   }
 
   async function addEffects() {
-    if (!audioFile) {
-      return null;
-    }
+    if (!audioFile) return;
     try {
       const buffer = await audioContext.decodeAudioData(audioFile.slice(0));
       const length = buffer.duration * buffer.sampleRate;
       offlineContext = new OfflineAudioContext(2, length, 44100);
-      const source = new AudioBufferSourceNode(offlineContext, {
-        buffer: buffer,
-      });
+      const source = new AudioBufferSourceNode(offlineContext, { buffer });
 
       const gainNode = offlineContext.createGain();
       const bassFilter = offlineContext.createBiquadFilter();
@@ -116,45 +92,10 @@ function App() {
       const wavBlob = new Blob([bufferToWav(renderedBuffer)], {
         type: "audio/wav",
       });
-      const url = URL.createObjectURL(wavBlob);
-      setAudioUrl(url);
+      setAudioUrl(URL.createObjectURL(wavBlob));
     } catch (error) {
-      console.error("Error decoding audio data", error);
+      console.error("Error processing audio:", error);
     }
-  }
-
-  function handleBassChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setBass(parseInt(event.target.value));
-  }
-
-  function handleMidChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setMids(parseInt(event.target.value));
-  }
-
-  function handleTrebleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setTreble(parseInt(event.target.value));
-  }
-
-  function handleCompressorThresholdChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setCompressorThreshold(parseInt(event.target.value));
-  }
-
-  function handleCompressorKneeChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setCompressorKnee(parseInt(event.target.value));
-  }
-
-  function handleCompressorRatioChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setCompressorRatio(parseInt(event.target.value));
-  }
-
-  function handleGainChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setGain(parseFloat(event.target.value));
   }
 
   return (
@@ -163,109 +104,37 @@ function App() {
         <h1>Saundifix</h1>
       </div>
       <div className="content">
-        <FileUploader
-          handleChange={handleFileChange}
-          name="file"
-          types={audioTypes}
-          onDraggingStateChange={(dragging: any) => {
-            if (dragging) {
-              setFileUploaderStyle("dragging");
-            }
-          }}
-          onTypeError={(error: any) => {
-            if (error) {
-              setFileUploaderStyle("error");
-              console.log("moi");
-            } else {
-              setFileUploaderStyle("fileUploader");
-            }
-          }}
-          children={
-            <div className="fileUploader" data-state={fileUploaderStyle}>
-              <span>Drag and drop audio file here: {audioFileName}</span>
-            </div>
-          }
+        <FileUpload
+          onFileUpload={handleFileChange}
+          audioFileName={audioFileName}
         />
-        <div className="sliders">
-          <p>Gain: {gain}dB</p>
-          <input
-            name="gain"
-            type="range"
-            min="0"
-            max="20"
-            step="0.25"
-            value={gain}
-            onChange={handleGainChange}
-            disabled={!isFileLoaded}
-          />
-          <p>Bass: {bass}dB</p>
-          <input
-            name="bass"
-            type="range"
-            min="-40"
-            max="40"
-            step="1"
-            value={bass}
-            onChange={handleBassChange}
-            disabled={!isFileLoaded}
-          />
-          <p>Mid: {mids}dB</p>
-          <input
-            name="mid"
-            type="range"
-            min="-40"
-            max="40"
-            step="1"
-            value={mids}
-            onChange={handleMidChange}
-            disabled={!isFileLoaded}
-          />
-          <p>Treble: {treble}dB</p>
-          <input
-            name="treble"
-            type="range"
-            min="-40"
-            max="40"
-            step="1"
-            value={treble}
-            onChange={handleTrebleChange}
-            disabled={!isFileLoaded}
-          />
-          <p>Compressor Threshold: {compressorThreshold}dB</p>
-          <input
-            type="range"
-            min="-100"
-            max="0"
-            step="1"
-            value={compressorThreshold}
-            onChange={handleCompressorThresholdChange}
-            disabled={!isFileLoaded}
-          />
-          <p>Compressor Knee: {compressorKnee}</p>
-          <input
-            type="range"
-            min="0"
-            max="40"
-            step="1"
-            value={compressorKnee}
-            onChange={handleCompressorKneeChange}
-            disabled={!isFileLoaded}
-          />
-          <p>Compressor Ratio: {compressorRatio}</p>
-          <input
-            type="range"
-            min="1"
-            max="20"
-            step="1"
-            value={compressorRatio}
-            onChange={handleCompressorRatioChange}
-            disabled={!isFileLoaded}
-          />
-        </div>
-        <button className="applyButton" onClick={addEffects}>Apply effects</button>
-        <audio controls src={audioUrl}></audio>
+        <AudioControls
+          gain={gain}
+          bass={bass}
+          mids={mids}
+          treble={treble}
+          compressorThreshold={compressorThreshold}
+          compressorKnee={compressorKnee}
+          compressorRatio={compressorRatio}
+          handleGainChange={(e) => setGain(parseFloat(e.target.value))}
+          handleBassChange={(e) => setBass(parseInt(e.target.value))}
+          handleMidChange={(e) => setMids(parseInt(e.target.value))}
+          handleTrebleChange={(e) => setTreble(parseInt(e.target.value))}
+          handleCompressorThresholdChange={(e) =>
+            setCompressorThreshold(parseInt(e.target.value))
+          }
+          handleCompressorKneeChange={(e) =>
+            setCompressorKnee(parseInt(e.target.value))
+          }
+          handleCompressorRatioChange={(e) =>
+            setCompressorRatio(parseInt(e.target.value))
+          }
+          isFileLoaded={isFileLoaded}
+        />
+        <AudioPlayer audioUrl={audioUrl} addEffects={addEffects} />
       </div>
     </div>
   );
 }
+
 export default App;
