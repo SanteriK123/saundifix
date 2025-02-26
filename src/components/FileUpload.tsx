@@ -1,5 +1,5 @@
 import { FileUploader } from "react-drag-drop-files";
-import "./FileUpload.css"
+import "./FileUpload.css";
 
 interface FileUploadProps {
   onFileUpload: (file: File | null) => void;

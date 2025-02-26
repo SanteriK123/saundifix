@@ -1,4 +1,4 @@
-import "./AudioPlayer.css"
+import "./AudioPlayer.css";
 
 interface AudioPlayerProps {
   audioUrl: string;
